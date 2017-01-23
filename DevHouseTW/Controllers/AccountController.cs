@@ -332,7 +332,14 @@ namespace DevHouseTW.Controllers
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
 
-            if (!result.Succeeded)
+            if (result.Succeeded)
+            {
+
+                await UserManager.AddToRoleAsync(user.Id, "user");
+                //await new SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
+            }
+            else
             {
                 return GetErrorResult(result);
             }
@@ -360,6 +367,8 @@ namespace DevHouseTW.Controllers
             var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
             IdentityResult result = await UserManager.CreateAsync(user);
+
+            
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
