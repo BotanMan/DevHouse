@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace DevHouseTW.Models
 {
@@ -33,15 +29,6 @@ namespace DevHouseTW.Models
         }
     }
 
-    public class Friendship
-    {
-        [Key]
-        public int Id { get; set; }
-        public string UserId { get; set; }
-        public DateTime FriendshipDuration { get; set; }
-        public string FriendshipType { get; set; }
-    }
-
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Friendship> Friendships { get; set; }
@@ -60,17 +47,6 @@ namespace DevHouseTW.Models
         {
             modelBuilder.Configurations.Add(new FriendshipConfiguration());
             base.OnModelCreating(modelBuilder);
-        }
-
-        class FriendshipConfiguration : EntityTypeConfiguration<Friendship>
-        {
-            public FriendshipConfiguration()
-            {
-                HasKey(e => e.Id);
-                Property(e => e.UserId).IsRequired();
-                Property(e => e.FriendshipDuration).IsRequired();
-                Property(e => e.FriendshipType).IsRequired();
-            }
         }
     }
 }

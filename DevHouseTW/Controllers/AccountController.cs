@@ -6,16 +6,10 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OAuth;
 using DevHouseTW.Models;
-using DevHouseTW.Providers;
-using DevHouseTW.Results;
 
 namespace DevHouseTW.Controllers
 {
@@ -51,6 +45,8 @@ namespace DevHouseTW.Controllers
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
 
+        #region old realization
+        /*  
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]
@@ -318,35 +314,6 @@ namespace DevHouseTW.Controllers
             return logins;
         }
 
-        // POST api/Account/Register
-        [AllowAnonymous]
-        [Route("Register")]
-        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
-
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-
-                await UserManager.AddToRoleAsync(user.Id, "user");
-                //await new SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-
-            }
-            else
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
         // POST api/Account/RegisterExternal
         [OverrideAuthentication]
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
@@ -368,7 +335,7 @@ namespace DevHouseTW.Controllers
 
             IdentityResult result = await UserManager.CreateAsync(user);
 
-            
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -377,10 +344,51 @@ namespace DevHouseTW.Controllers
             result = await UserManager.AddLoginAsync(user.Id, info.Login);
             if (!result.Succeeded)
             {
-                return GetErrorResult(result); 
+                return GetErrorResult(result);
             }
             return Ok();
         }
+
+        */
+
+        #endregion
+
+
+
+        // POST api/Account/Register
+        [AllowAnonymous]
+        [Route("Register")]
+        public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = new ApplicationUser()
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber
+            };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                await UserManager.AddToRoleAsync(user.Id, "user");
+            }
+            else
+            {
+                return GetErrorResult(result);
+            }
+
+            return Ok("Success");
+        }
+
+
 
         protected override void Dispose(bool disposing)
         {
