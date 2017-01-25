@@ -16,8 +16,9 @@ namespace DevHouseTW.Models
         public DateTime FriendshipDuration { get; set; }
         public string FriendshipType { get; set; }
         
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        //[ForeignKey("UserId")]
+        //public string ApplicationUserId { get; set; }
+        public virtual ApplicationUser UserId { get; set; }
     }
 
     class FriendshipConfiguration : EntityTypeConfiguration<Friendship>
