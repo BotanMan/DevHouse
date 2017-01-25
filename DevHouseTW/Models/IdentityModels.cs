@@ -15,11 +15,6 @@ namespace DevHouseTW.Models
 
         public virtual ICollection<Friendship> Friendships { get; set; }
 
-        //public ApplicationUser()
-        //{
-        //    Friendships = new List<Friendship>();
-        //}
-
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
         {
             // Обратите внимание, что authenticationType должен совпадать с типом, определенным в CookieAuthenticationOptions.AuthenticationType

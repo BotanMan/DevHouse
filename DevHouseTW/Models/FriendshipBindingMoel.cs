@@ -15,4 +15,12 @@ namespace DevHouseTW.Models
         public string Id { get; set; }
     }
 
+    public class FrienResult
+    {
+        public string FriendId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string FriendshipType { get; set; }
+        public DateTime FriendshipDuration { get; set; }
+    }
 }

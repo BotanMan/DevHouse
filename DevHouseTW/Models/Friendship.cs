@@ -9,16 +9,13 @@ namespace DevHouseTW.Models
     {
         [Key]
         public int Id { get; set; }
-
-        //[ForeignKey("AspNetUsers")]
-        //public string UserId { get; set; }        
         public string FriendId { get; set; }
         public DateTime FriendshipDuration { get; set; }
         public string FriendshipType { get; set; }
         
-        //[ForeignKey("UserId")]
-        //public string ApplicationUserId { get; set; }
-        public virtual ApplicationUser UserId { get; set; }
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public virtual ApplicationUser ApplicationUser { get; set; }
     }
 
     class FriendshipConfiguration : EntityTypeConfiguration<Friendship>
