@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using Domain.DbContext;
+using Domain.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using DevHouseTW.Models;
 
-namespace DevHouseTW
+namespace Domain.IdentityManagers
 {
-    // Настройка диспетчера пользователей приложения. UserManager определяется в ASP.NET Identity и используется приложением.
-
     public class ApplicationUserManager : UserManager<ApplicationUser>
     {
         public ApplicationUserManager(IUserStore<ApplicationUser> store)
@@ -41,5 +40,4 @@ namespace DevHouseTW
             return manager;
         }
     }
-
 }

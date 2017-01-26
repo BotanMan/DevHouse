@@ -10,6 +10,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using DevHouseTW.Models;
+using Domain.IdentityManagers;
+using Domain.Models;
 
 namespace DevHouseTW.Controllers
 {

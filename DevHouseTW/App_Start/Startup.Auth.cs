@@ -4,7 +4,9 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
 using DevHouseTW.Providers;
-using DevHouseTW.Models;
+using Domain.DbContext;
+using Domain.IdentityManagers;
+
 
 namespace DevHouseTW
 {

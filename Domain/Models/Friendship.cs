@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
-namespace DevHouseTW.Models
+namespace Domain.Models
 {
     public class Friendship
     {
@@ -12,7 +12,7 @@ namespace DevHouseTW.Models
         public string FriendId { get; set; }
         public DateTime FriendshipDuration { get; set; }
         public string FriendshipType { get; set; }
-        
+
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual ApplicationUser ApplicationUser { get; set; }

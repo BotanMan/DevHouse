@@ -3,7 +3,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using DevHouseTW.Models;
+using Domain.DbContext;
+using Domain.DBInitializer;
 
 namespace DevHouseTW
 {

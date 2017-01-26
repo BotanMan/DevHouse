@@ -1,8 +1,11 @@
 ﻿using System.Data.Entity;
+using Domain.DbContext;
+using Domain.IdentityManagers;
+using Domain.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
-namespace DevHouseTW.Models
+namespace Domain.DBInitializer
 {
     public class AppDBInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
     {
