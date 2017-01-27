@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web.Http;
 using DevHouseTW.Models;
 using Domain.DbContext;
 using Domain.IdentityManagers;
+using Domain.Interfaces.DbAbstractions;
 using Domain.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -17,7 +19,13 @@ namespace DevHouseTW.Controllers
     [RoutePrefix("api/Friendship")]
     public class FriendshipController : ApiController
     {
-        ApplicationDbContext dbContext = new ApplicationDbContext();
+        public FriendshipController(IApplicationEFDbConnector context)
+        {
+            this.context = context;
+        }
+
+        private IApplicationEFDbConnector context;
+
         private ApplicationUserManager _userManager;
 
         public ApplicationUserManager UserManager
@@ -30,120 +38,154 @@ namespace DevHouseTW.Controllers
         [Route("AboutMe")]
         public async Task<IHttpActionResult> AboutMe()
         {
-            var result = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            return Json(new
+            try
             {
-                result.Id,
-                result.Email,
-                result.FirstName,
-                result.LastName
-            });
+                var result = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                return Json(new
+                {
+                    result.Id,
+                    result.Email,
+                    result.FirstName,
+                    result.LastName
+                });
+            }
+            catch (Exception)
+            {
+                //todo: здесь реализация логирования
+                throw;
+            }
+
         }
 
         [HttpGet]
         [Route("AllUsers")]
         public async Task<IHttpActionResult> AllUsers()
         {
-            var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-            var roleUsersId = dbContext.Roles.FirstOrDefault(e => e.Name == "user")?.Id;
-            var users = dbContext.Users.Where(x => x.Roles.Select(y => y.RoleId).Contains(roleUsersId) &&
-                                                   x.Id != carentUser.Id)
-                .Select(e => new
+            try
+            {
+                var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+
+                var users = context.GetAllUsersByRole("user", carentUser.Id).Select(e => new
                 {
                     e.Id,
                     e.FirstName,
                     e.LastName
                 });
+                if (!users.Any())
+                {
+                    return BadRequest("Пользователи не найдены");
+                }
 
-            if (!users.Any())
+                return Json(users);
+            }
+            catch (Exception)
             {
-                return BadRequest("Пользователи не найдены");
+                //todo: здесь реализация логирования
+                throw;
             }
 
-            return Json(users);
         }
 
         [HttpPost]
         [Route("FriendsUserById")]
         public async Task<IHttpActionResult> FriendsUserById(FriendshipIdModel model)
         {
-
-            var user = await UserManager.FindByIdAsync(model.Id);
-
-            if (user == null || !user.Friendships.Any())
+            try
             {
-                return BadRequest("Пользователь или его друзья не найдены");
-            }
+                var user = await UserManager.FindByIdAsync(model.Id);
 
-            List<FrienResult> result = new List<FrienResult>();
-
-            foreach (var userFriendship in user.Friendships)
-            {
-                var friend = await UserManager.FindByIdAsync(userFriendship.FriendId);
-
-                result.Add(new FrienResult()
+                if (user == null || !user.Friendships.Any())
                 {
-                    FriendId = userFriendship.FriendId,
-                    FirstName = friend.FirstName,
-                    LastName = friend.LastName,
-                    FriendshipType = userFriendship.FriendshipType,
-                    FriendshipDuration = userFriendship.FriendshipDuration
-                });
+                    return BadRequest("Пользователь или его друзья не найдены");
+                }
+
+                List<FrienResult> result = new List<FrienResult>();
+
+                foreach (var userFriendship in user.Friendships)
+                {
+                    var friend = await UserManager.FindByIdAsync(userFriendship.FriendId);
+
+                    result.Add(new FrienResult()
+                    {
+                        FriendId = userFriendship.FriendId,
+                        FirstName = friend.FirstName,
+                        LastName = friend.LastName,
+                        FriendshipType = userFriendship.FriendshipType,
+                        FriendshipDuration = userFriendship.FriendshipDuration
+                    });
+                }
+
+                return Json(result);
             }
-
-            return Json(result);
-
+            catch (Exception)
+            {
+                //todo: здесь реализация логирования
+                throw;
+            }
         }
 
         [HttpPost]
         [Route("AddFriend")]
         public async Task<IHttpActionResult> AddFriend(FriendshipAddFriendModel model)
         {
-            var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-
-            if (carentUser.Friendships.Any(e => e.FriendId == model.Id))
+            try
             {
-                return BadRequest("Данный пользователь уже добавлен в друзья");
+                var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+
+                if (carentUser.Friendships.Any(e => e.FriendId == model.Id))
+                {
+                    return BadRequest("Данный пользователь уже добавлен в друзья");
+                }
+
+                var friend = await UserManager.FindByIdAsync(model.Id);
+
+                if (friend == null)
+                {
+                    return BadRequest("Добавляемый пользователь не найден");
+                }
+
+                await context.AddFriendAsync(new Friendship()
+                {
+                    UserId = carentUser.Id,
+                    FriendId = friend.Id,
+                    FriendshipType = model.FriendshipType,
+                    FriendshipDuration = DateTime.Now
+                });
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                //todo: здесь реализация логирования
+                throw;
             }
 
-            var friend = await UserManager.FindByIdAsync(model.Id);
-
-            if (friend == null)
-            {
-                return BadRequest("Добавляемый пользователь не найден");
-            }
-
-            dbContext.Friendships.Add(new Friendship()
-            {
-                UserId = carentUser.Id,
-                FriendId = friend.Id,
-                FriendshipType = model.FriendshipType,
-                FriendshipDuration = DateTime.Now
-            });
-
-            await dbContext.SaveChangesAsync();
-
-            return Ok();
         }
 
         [HttpPost]
         [Route("DeleteFriend")]
         public async Task<IHttpActionResult> DeleteFriend(FriendshipIdModel model)
         {
-            var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-
-            var friend = carentUser.Friendships.FirstOrDefault(e => e.FriendId == model.Id);
-
-            if (friend == null)
+            try
             {
-                return BadRequest("Данный пользователь отутвует в списке друзей");
+                var carentUser = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+
+                var friend = carentUser.Friendships.FirstOrDefault(e => e.FriendId == model.Id);
+
+                if (friend == null)
+                {
+                    return BadRequest("Данный пользователь отутвует в списке друзей");
+                }
+                await context.RemoveFriendAsync(carentUser.Id, model.Id);
+
+                return Ok();
             }
-
-            dbContext.Friendships.Remove(dbContext.Friendships.FirstOrDefault(e => e.FriendId == model.Id &&
-                                                                                 e.UserId == carentUser.Id));
-            await dbContext.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception)
+            {
+                //todo: здесь реализация логирования
+                throw;
+            }
+            
         }
     }
 }

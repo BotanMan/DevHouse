@@ -12,6 +12,7 @@ namespace DevHouseTW
     {
         protected void Application_Start()
         {
+            NinjectHttpContainer.RegisterModules(NinjectHttpModules.Modules);
             Database.SetInitializer<ApplicationDbContext>(new AppDBInitializer());
 
             AreaRegistration.RegisterAllAreas();
