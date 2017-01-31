@@ -37,7 +37,7 @@ namespace DevHouseTW
 
         public void Dispose()
         {
-            //Do Nothing
+            
         }
 
         public IDependencyScope BeginScope()
@@ -47,7 +47,7 @@ namespace DevHouseTW
     }
     public class NinjectHttpModules
     {
-        //Return Lists of Modules in the Application
+        
         public static NinjectModule[] Modules
         {
             get
@@ -56,7 +56,7 @@ namespace DevHouseTW
             }
         }
 
-        //Main Module For Application
+        
         public class MainModule : NinjectModule
         {
             public override void Load()
@@ -69,7 +69,7 @@ namespace DevHouseTW
     {
         private static NinjectHttpResolver _resolver;
 
-        //Register Ninject Modules
+        
         public static void RegisterModules(NinjectModule[] modules)
         {
             _resolver = new NinjectHttpResolver(modules);
@@ -79,11 +79,11 @@ namespace DevHouseTW
         public static void RegisterAssembly()
         {
             _resolver = new NinjectHttpResolver(Assembly.GetExecutingAssembly());
-            //This is where the actual hookup to the Web API Pipeline is done.
+            
             GlobalConfiguration.Configuration.DependencyResolver = _resolver;
         }
 
-        //Manually Resolve Dependencies
+        
         public static T Resolve<T>()
         {
             return _resolver.Kernel.Get<T>();
